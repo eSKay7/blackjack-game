@@ -43,6 +43,14 @@ function drawCard(){
     return {key : displayCard, value : cardValue}
 }
 
+function buttonDisplay({start = false, hit = false, stand = false, reset = false}){
+    document.getElementById("start-el").hidden = !start
+    document.getElementById("hit-el").hidden = !hit
+    document.getElementById("stand-el").hidden = !stand
+    document.getElementById("reset-el").hidden = !reset
+}
+
+buttonDisplay({start : true})
 
 let messageEl = document.getElementById("message-el")
 
@@ -71,12 +79,11 @@ function reset(){
     messageEl.textContent = message
     dealerEl.textContent = "Dealer's Cards: "
     cardsEl.textContent = "Your Cards: "
-    document.getElementById("start-el").hidden = false
-    document.getElementById("hit-el").hidden = false
-    document.getElementById("stand-el").hidden = false
+    buttonDisplay({start : true})
 }
 
 function startGame(){
+    buttonDisplay({hit : true, stand : true, reset : true})
     startRound()
     updateGame()
 }
@@ -93,8 +100,8 @@ function displayCards(player, prefix, array){
 }
 
 function updateGame(){
-    displayCards(dealerEl, "Dealer's Card: \n", dealerCards)
-    displayCards(cardsEl, "Your Cards: \n", cards)
+    displayCards(dealerEl, "Dealer's Card: ", dealerCards)
+    displayCards(cardsEl, "Your Cards: ", cards)
     if (playerSum === 21){
         message = "You've got Blackjack"
         isAlive = false
@@ -117,9 +124,7 @@ function updateGame(){
     }
 
     if (!isAlive){
-        document.getElementById("start-el").hidden = true
-        document.getElementById("hit-el").hidden = true
-        document.getElementById("stand-el").hidden = true
+        buttonDisplay({reset : true})
     }
     messageEl.textContent = message
 }
