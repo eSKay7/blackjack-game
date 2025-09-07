@@ -12,6 +12,7 @@ let dealerSum = 0           // Total od dealer's card values.
 let isAlive = true          // Checks if the player is still in the round.
 let takenStand = false      // Checks if the player has chosen to stand. 
 let message = ""            // Stores game message to be shown in the UI.
+let currentBank = 500       // Stores the starting bank value of user.
 
 // Deck used for drawing card ranks (values).
 let deck = {
@@ -22,6 +23,42 @@ let deck = {
 
 // Used for checking card suit (Hearts, Diamonds, Clubs, Spades).
 let suits = ["H", "D", "C", "S"]
+
+/**
+ * DOM Element References
+ * The following variables store references to HTML elements
+ * where messages, dealer's cards, and player's cards
+ * will be displayed.
+ */
+let messageEl = document.getElementById("message-el")
+let dealerEl = document.getElementById("dealer-el")
+let cardsEl = document.getElementById("cards-el")
+let currentBankEl = document.getElementById("player-bank-el")
+
+
+/**
+ * Function to update the value of player's Bank depending upon if the player won or lost. 
+ * Async function waits for the server to respond without freezing the page.
+ * await - Pauses until the server responds.
+ * fetch - Tells browser to send request to the Port/update_bank URL.
+ * method : "POST" - Specifies that this is a POST request (Sends data to the server).
+ * headers - Tells the server that the data is JSON.
+ * body - Converts the js object to JSON string to send.
+ * @param {string} result - String that contains "win" or "lose" depending on if the player won or lost. 
+ */
+async function updateBank(result){
+    let response = await fetch("http://127.0.0.1:5000/update_bank", {
+        method : "POST",
+        headers : {"content-type" : "application/json"},
+        body : JSON.stringify({bank : currentBank , result : result})
+    })
+
+    // Reads JSON returned by flask, converts it into JS object and stores it in data variable. 
+    let data = await response.json()
+
+    currentBank = data.bank;
+    currentBankEl.textContent = "Bank: " + currentBank
+}
 
 
 /**
@@ -79,17 +116,6 @@ function buttonDisplay({start = false, hit = false, stand = false, reset = false
  * Other buttons ("Hit", "Stand", "Reset") remain hidden until a round begins.
  */
 buttonDisplay({start : true})
-
-
-/**
- * DOM Element References
- * The following variables store references to HTML elements
- * where messages, dealer's cards, and player's cards
- * will be displayed.
- */
-let messageEl = document.getElementById("message-el")
-let dealerEl = document.getElementById("dealer-el")
-let cardsEl = document.getElementById("cards-el")
 
 
 /**
@@ -165,6 +191,7 @@ function updateGame(){
     displayCards(cardsEl, "Your Cards: ", cards)
     if (playerSum === 21){
         message = "You've got Blackjack"
+        updateBank("win")
         isAlive = false
     }
     else if (playerSum < 21 && !takenStand){
@@ -173,6 +200,7 @@ function updateGame(){
     else if (takenStand){
         if (dealerSum > 21){
             message = "Dealer's out of the game. You Win!"
+            updateBank("win")
             isAlive = false
         }
         else{
@@ -181,6 +209,7 @@ function updateGame(){
     }
     else {
         message = "You're out of the game. Dealer Wins!"
+        updateBank("lose")
         isAlive = false
     }
 
@@ -236,10 +265,12 @@ function stand(){
 function winner(){
     if (playerSum > dealerSum){
         message = "You win!"
+        updateBank("win")
         isAlive = false
     }
     else if (playerSum < dealerSum){
         message = "Dealer wins!"
+        updateBank("lose")
         isAlive = false
     }
     else{
