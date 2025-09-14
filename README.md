@@ -48,22 +48,6 @@ http://127.0.0.1:5000
 Open frontend/index.html in your browser.
 Note: The bank system will only work if the Flask server is running, since the game sends POST requests to /update_bank.
 
-Project Structure
-Blackjack/
-│
-├── backend/
-│   └── app.py               # Flask backend server
-│
-├── frontend/
-│   ├── index.html            # Main game page
-│   ├── css/
-│   │   └── index.css         # Styling
-│   ├── js/
-│   │   └── index.js          # Game logic
-│   └── images/               # Card and table images
-│
-└── README.md
-
 Notes
 The backend is not deployed; it runs locally on your machine.
 
